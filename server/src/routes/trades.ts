@@ -22,7 +22,16 @@ router.post('/', authenticate, async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // Get latest price
+    const lockRes = await client.query(
+      'SELECT id, available_quantity FROM bonds WHERE id=$1 FOR UPDATE',
+      [bondId],
+    );
+    if (!lockRes.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Bond not found' });
+    }
+    const brokerQty = lockRes.rows[0].available_quantity ?? 0;
+
     const priceRes = await client.query(`
       SELECT bp.*, b.nominal, b.coupon_rate, b.coupon_frequency
       FROM bond_prices bp
@@ -33,6 +42,11 @@ router.post('/', authenticate, async (req, res) => {
     if (!p) {
       await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Bond price not found' });
+    }
+
+    if (tradeType === 'buy' && brokerQty < quantity) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient bonds available from broker' });
     }
 
     const pricePerBond = tradeType === 'buy' ? parseFloat(p.ask_price) : parseFloat(p.bid_price);
@@ -58,6 +72,18 @@ router.post('/', authenticate, async (req, res) => {
       INSERT INTO trades (user_id, bond_id, trade_type, quantity, price_per_bond, nkd_per_bond, total_amount, broker_margin)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *
     `, [userId, bondId, tradeType, quantity, pricePerBond, nkdPerBond, totalAmount, brokerMargin]);
+
+    if (tradeType === 'buy') {
+      await client.query(
+        'UPDATE bonds SET available_quantity = available_quantity - $1 WHERE id=$2',
+        [quantity, bondId],
+      );
+    } else {
+      await client.query(
+        'UPDATE bonds SET available_quantity = available_quantity + $1 WHERE id=$2',
+        [quantity, bondId],
+      );
+    }
 
     // Update portfolio
     if (tradeType === 'buy') {

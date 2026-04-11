@@ -30,6 +30,14 @@ npm run migrate
 npm run seed
 ```
 
+Если база уже была создана раньше, а в таблице `bonds` ещё нет колонки остатка:
+
+```bash
+cd server && npm run patch:inventory
+```
+
+После патча при необходимости задайте остатки в админке («Остаток») или пересоздайте seed для новых выпусков.
+
 ### 4. Запустить сервисы
 
 Терминал 1 (backend):
@@ -56,8 +64,9 @@ cd client && npm run dev
 
 ```
 gov_broker_app/
-├── client/          # React 18 + TypeScript + Vite + Tailwind
+├── client/          # React 18 + TypeScript + Vite + Tailwind + shadcn/ui (Radix)
 │   └── src/
+│       ├── components/ui/  # Button, Card, Dialog, Table, …
 │       ├── pages/   # LoginPage, MarketPage, PortfolioPage, TradesPage, AdminPage, BalancesPage
 │       ├── components/
 │       ├── api/     # axios + typed API helpers

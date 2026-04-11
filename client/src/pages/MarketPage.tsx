@@ -7,6 +7,10 @@ import { usePricesUpdated } from '../hooks/useSocket';
 import DealModal from '../components/DealModal';
 import Spinner from '../components/Spinner';
 import { useAuthStore } from '../store/auth';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default function MarketPage() {
   const { user } = useAuthStore();
@@ -25,13 +29,14 @@ export default function MarketPage() {
     }
   }, []);
 
-  useEffect(() => { fetchBonds(); }, [fetchBonds]);
+  useEffect(() => {
+    void fetchBonds();
+  }, [fetchBonds]);
 
   usePricesUpdated((updatedBond) => {
     setBonds((prev) =>
       prev.map((b) => {
         if (b.id !== updatedBond.id) return b;
-        // Server emits merged object with both snake_case and numeric keys
         const raw = updatedBond as Bond & Record<string, unknown>;
         return {
           ...b,
@@ -57,91 +62,102 @@ export default function MarketPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Витрина ГЦБ</h1>
-        <p className="text-sm text-gray-500 mt-1">Котировки обновляются в реальном времени</p>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">Витрина ГЦБ</h1>
+        <p className="text-base text-muted-foreground mt-2">Котировки обновляются в реальном времени</p>
       </div>
 
       {bonds.length === 0 ? (
-        <div className="card text-center py-16 text-gray-400">Нет доступных ценных бумаг</div>
+        <Card>
+          <CardContent className="py-16 text-center text-muted-foreground">Нет доступных ценных бумаг</CardContent>
+        </Card>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="table-th">ISIN / Название</th>
-                <th className="table-th">Купон</th>
-                <th className="table-th">YTM</th>
-                <th className="table-th">Дата погашения</th>
-                <th className="table-th text-right">Bid</th>
-                <th className="table-th text-right">Ask</th>
-                <th className="table-th text-right">НКД</th>
-                {user?.role === 'investor' && <th className="table-th"></th>}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {bonds.map((bond) => {
-                const nkd = parseFloat(bond.dirty_price ?? '0') - parseFloat(bond.clean_price ?? '0');
-                return (
-                  <tr key={bond.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="table-td">
-                      <div className="font-medium text-gray-900">{bond.isin}</div>
-                      <div className="text-xs text-gray-500">{bond.name}</div>
-                    </td>
-                    <td className="table-td">{fmtPct(parseFloat(bond.coupon_rate) * 100)}</td>
-                    <td className="table-td">
-                      {bond.ytm ? (
-                        <span className="badge bg-blue-100 text-blue-700">
-                          {fmtPct(parseFloat(bond.ytm) * 100)}
-                        </span>
-                      ) : '—'}
-                    </td>
-                    <td className="table-td">{fmtDate(bond.maturity_date)}</td>
-                    <td className="table-td text-right">
-                      <span className="text-emerald-700 font-semibold">
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ISIN / Название</TableHead>
+                  <TableHead>Купон</TableHead>
+                  <TableHead>YTM</TableHead>
+                  <TableHead>Дата погашения</TableHead>
+                  <TableHead className="text-right">Bid</TableHead>
+                  <TableHead className="text-right">Ask</TableHead>
+                  <TableHead className="text-right">НКД</TableHead>
+                  <TableHead className="text-right">Доступно</TableHead>
+                  {user?.role === 'investor' && <TableHead className="w-[220px]" />}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {bonds.map((bond) => {
+                  const nkd = parseFloat(bond.dirty_price ?? '0') - parseFloat(bond.clean_price ?? '0');
+                  return (
+                    <TableRow key={bond.id}>
+                      <TableCell>
+                        <div className="font-medium">{bond.isin}</div>
+                        <div className="text-sm text-muted-foreground">{bond.name}</div>
+                      </TableCell>
+                      <TableCell>{fmtPct(parseFloat(bond.coupon_rate) * 100)}</TableCell>
+                      <TableCell>
+                        {bond.ytm ? (
+                          <Badge variant="secondary" className="font-normal">
+                            {fmtPct(parseFloat(bond.ytm) * 100)}
+                          </Badge>
+                        ) : (
+                          '—'
+                        )}
+                      </TableCell>
+                      <TableCell>{fmtDate(bond.maturity_date)}</TableCell>
+                      <TableCell className="text-right font-semibold text-emerald-700">
                         {bond.bid_price ? fmt(bond.bid_price) : '—'}
-                      </span>
-                    </td>
-                    <td className="table-td text-right">
-                      <span className="text-red-600 font-semibold">
+                      </TableCell>
+                      <TableCell className="text-right font-semibold text-red-600">
                         {bond.ask_price ? fmt(bond.ask_price) : '—'}
-                      </span>
-                    </td>
-                    <td className="table-td text-right text-gray-500">{fmt(nkd)}</td>
-                    {user?.role === 'investor' && (
-                      <td className="table-td">
-                        <div className="flex gap-2 justify-end">
-                          <button
-                            className="btn-success text-xs px-3 py-1.5"
-                            onClick={() => setDeal({ bond, mode: 'buy' })}
-                            disabled={!bond.ask_price}
-                          >
-                            Купить
-                          </button>
-                          <button
-                            className="btn-danger text-xs px-3 py-1.5"
-                            onClick={() => setDeal({ bond, mode: 'sell' })}
-                            disabled={!bond.bid_price}
-                          >
-                            Продать
-                          </button>
-                        </div>
-                      </td>
-                    )}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </TableCell>
+                      <TableCell className="text-right text-muted-foreground">{fmt(nkd)}</TableCell>
+                      <TableCell className="text-right font-medium">
+                        {(bond.available_quantity ?? 0).toLocaleString('ru-RU')}
+                      </TableCell>
+                      {user?.role === 'investor' && (
+                        <TableCell>
+                          <div className="flex gap-2 justify-end">
+                            <Button
+                              className="bg-emerald-600 px-4 text-base hover:bg-emerald-700"
+                              onClick={() => setDeal({ bond, mode: 'buy' })}
+                              disabled={!bond.ask_price || (bond.available_quantity ?? 0) <= 0}
+                            >
+                              Купить
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              className="px-4 text-base"
+                              onClick={() => setDeal({ bond, mode: 'sell' })}
+                              disabled={!bond.bid_price}
+                            >
+                              Продать
+                            </Button>
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       )}
 
       {deal && (
         <DealModal
+          key={`${deal.bond.id}-${deal.mode}`}
           bond={deal.bond}
           mode={deal.mode}
           onClose={() => setDeal(null)}
-          onSuccess={() => setDeal(null)}
+          onSuccess={() => {
+            void fetchBonds();
+            setDeal(null);
+          }}
         />
       )}
     </div>

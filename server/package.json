@@ -6,6 +6,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "migrate": "tsx src/db/migrate.ts",
+    "patch:inventory": "tsx src/db/patch-inventory.ts",
     "seed": "tsx src/db/seed.ts"
   },
   "dependencies": {

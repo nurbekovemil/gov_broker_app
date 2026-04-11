@@ -1,6 +1,7 @@
-export default function Spinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
-  const s = { sm: 'h-4 w-4', md: 'h-8 w-8', lg: 'h-12 w-12' }[size];
-  return (
-    <div className={`animate-spin rounded-full border-2 border-gray-300 border-t-brand-500 ${s}`} />
-  );
+import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+export default function Spinner({ size = 'md', className }: { size?: 'sm' | 'md' | 'lg'; className?: string }) {
+  const s = { sm: 'h-6 w-6', md: 'h-10 w-10', lg: 'h-14 w-14' }[size];
+  return <Loader2 className={cn('animate-spin text-primary', s, className)} aria-hidden />;
 }

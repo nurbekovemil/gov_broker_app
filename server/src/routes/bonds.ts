@@ -41,6 +41,15 @@ const bondSchema = z.object({
   issueDate: z.string(),
   maturityDate: z.string(),
   couponFrequency: z.number().int().min(1).max(12),
+  availableQuantity: z.coerce.number().int().min(0).optional().default(0),
+});
+
+const bondUpdateSchema = z.object({
+  name: z.string().min(1).optional(),
+  couponRate: z.number().positive().max(1).optional(),
+  maturityDate: z.string().optional(),
+  couponFrequency: z.number().int().min(1).max(12).optional(),
+  availableQuantity: z.coerce.number().int().min(0).optional(),
 });
 
 router.post('/', authenticate, requireAdmin, async (req, res) => {
@@ -49,15 +58,15 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
   const d = parsed.data;
 
   const result = await pool.query(`
-    INSERT INTO bonds (isin, name, nominal, coupon_rate, issue_date, maturity_date, coupon_frequency)
-    VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *
-  `, [d.isin, d.name, d.nominal, d.couponRate, d.issueDate, d.maturityDate, d.couponFrequency]);
+    INSERT INTO bonds (isin, name, nominal, coupon_rate, issue_date, maturity_date, coupon_frequency, available_quantity)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *
+  `, [d.isin, d.name, d.nominal, d.couponRate, d.issueDate, d.maturityDate, d.couponFrequency, d.availableQuantity]);
 
   return res.status(201).json(result.rows[0]);
 });
 
 router.put('/:id', authenticate, requireAdmin, async (req, res) => {
-  const parsed = bondSchema.partial().safeParse(req.body);
+  const parsed = bondUpdateSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
   const d = parsed.data;
 
@@ -69,6 +78,7 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
   if (d.couponRate !== undefined) { sets.push(`coupon_rate=$${idx++}`); vals.push(d.couponRate); }
   if (d.maturityDate !== undefined) { sets.push(`maturity_date=$${idx++}`); vals.push(d.maturityDate); }
   if (d.couponFrequency !== undefined) { sets.push(`coupon_frequency=$${idx++}`); vals.push(d.couponFrequency); }
+  if (d.availableQuantity !== undefined) { sets.push(`available_quantity=$${idx++}`); vals.push(d.availableQuantity); }
 
   if (sets.length === 0) return res.status(400).json({ error: 'No fields to update' });
   vals.push(req.params.id);

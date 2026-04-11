@@ -5,6 +5,9 @@ import type { Trade } from '../types';
 import { fmt, fmtDateTime } from '../utils/format';
 import Spinner from '../components/Spinner';
 import { useAuthStore } from '../store/auth';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default function TradesPage() {
   const { user } = useAuthStore();
@@ -12,74 +15,85 @@ export default function TradesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    tradesApi.list()
+    tradesApi
+      .list()
       .then(({ data }) => setTrades(data))
       .catch(() => toast.error('Ошибка загрузки сделок'))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="flex justify-center h-64 items-center"><Spinner size="lg" /></div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center h-64 items-center">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   const isAdmin = user?.role === 'admin';
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{isAdmin ? 'Все сделки' : 'Мои сделки'}</h1>
-        <p className="text-sm text-gray-500 mt-1">Журнал операций — {trades.length} записей</p>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">{isAdmin ? 'Все сделки' : 'Мои сделки'}</h1>
+        <p className="text-base text-muted-foreground mt-2">Журнал операций — {trades.length} записей</p>
       </div>
 
       {trades.length === 0 ? (
-        <div className="card text-center py-16 text-gray-400">Нет сделок</div>
+        <Card>
+          <CardContent className="py-16 text-center text-muted-foreground">Нет сделок</CardContent>
+        </Card>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="table-th">Дата/Время</th>
-                  {isAdmin && <th className="table-th">Инвестор</th>}
-                  <th className="table-th">ISIN</th>
-                  <th className="table-th">Тип</th>
-                  <th className="table-th text-right">Кол-во</th>
-                  <th className="table-th text-right">Цена</th>
-                  <th className="table-th text-right">НКД</th>
-                  <th className="table-th text-right">Итого</th>
-                  {isAdmin && <th className="table-th text-right">Маржа</th>}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
+        <Card>
+          <CardContent className="p-0 overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Дата/Время</TableHead>
+                  {isAdmin && <TableHead>Инвестор</TableHead>}
+                  <TableHead>ISIN</TableHead>
+                  <TableHead>Тип</TableHead>
+                  <TableHead className="text-right">Кол-во</TableHead>
+                  <TableHead className="text-right">Цена</TableHead>
+                  <TableHead className="text-right">НКД</TableHead>
+                  <TableHead className="text-right">Итого</TableHead>
+                  {isAdmin && <TableHead className="text-right">Маржа</TableHead>}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {trades.map((t) => (
-                  <tr key={t.id} className="hover:bg-gray-50">
-                    <td className="table-td text-xs text-gray-500">{fmtDateTime(t.created_at)}</td>
+                  <TableRow key={t.id}>
+                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                      {fmtDateTime(t.created_at)}
+                    </TableCell>
                     {isAdmin && (
-                      <td className="table-td">
-                        <div className="text-sm font-medium">{t.investor_name}</div>
-                        <div className="text-xs text-gray-500">{t.investor_email}</div>
-                      </td>
+                      <TableCell>
+                        <div className="text-base font-medium">{t.investor_name}</div>
+                        <div className="text-sm text-muted-foreground">{t.investor_email}</div>
+                      </TableCell>
                     )}
-                    <td className="table-td">
+                    <TableCell>
                       <div className="font-medium">{t.isin}</div>
-                      <div className="text-xs text-gray-500">{t.bond_name}</div>
-                    </td>
-                    <td className="table-td">
-                      <span className={`badge ${t.trade_type === 'buy' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                      <div className="text-sm text-muted-foreground">{t.bond_name}</div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={t.trade_type === 'buy' ? 'default' : 'destructive'} className="font-normal">
                         {t.trade_type === 'buy' ? 'Покупка' : 'Продажа'}
-                      </span>
-                    </td>
-                    <td className="table-td text-right">{t.quantity}</td>
-                    <td className="table-td text-right">{fmt(t.price_per_bond)}</td>
-                    <td className="table-td text-right text-gray-500">{fmt(t.nkd_per_bond)}</td>
-                    <td className="table-td text-right font-semibold">{fmt(t.total_amount)}</td>
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">{t.quantity}</TableCell>
+                    <TableCell className="text-right">{fmt(t.price_per_bond)}</TableCell>
+                    <TableCell className="text-right text-muted-foreground">{fmt(t.nkd_per_bond)}</TableCell>
+                    <TableCell className="text-right font-semibold">{fmt(t.total_amount)}</TableCell>
                     {isAdmin && (
-                      <td className="table-td text-right text-brand-600 font-semibold">{fmt(t.broker_margin)}</td>
+                      <TableCell className="text-right font-semibold text-primary">{fmt(t.broker_margin)}</TableCell>
                     )}
-                  </tr>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

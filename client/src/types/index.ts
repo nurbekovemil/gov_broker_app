@@ -14,6 +14,8 @@ export interface Bond {
   issue_date: string;
   maturity_date: string;
   coupon_frequency: number;
+  /** Остаток бумаг у госброкера на витрине (уменьшается при покупке, растёт при продаже клиентом) */
+  available_quantity?: number;
   status: 'active' | 'inactive' | 'matured';
   ytm: string | null;
   clean_price: string | null;

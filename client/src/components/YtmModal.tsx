@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import Modal from './Modal';
 import { bondsApi } from '../api';
 import type { Bond } from '../types';
 import { fmtPct } from '../utils/format';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Props {
   bond: Bond;
@@ -35,48 +38,56 @@ export default function YtmModal({ bond, onClose, onSuccess }: Props) {
   };
 
   return (
-    <Modal title={`YTM для ${bond.isin}`} onClose={onClose}>
-      <div className="space-y-4">
-        <div className="bg-gray-50 rounded-lg p-3 text-sm space-y-1">
-          <div className="flex justify-between">
-            <span className="text-gray-500">Облигация</span>
-            <span className="font-medium">{bond.name}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-500">Текущий YTM</span>
-            <span className="font-medium">{bond.ytm ? fmtPct(parseFloat(bond.ytm) * 100) : 'не задан'}</span>
-          </div>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <label className="label">Новый YTM (%)</label>
-            <div className="relative">
-              <input
-                type="number"
-                step="0.001"
-                min="0.001"
-                max="99.999"
-                className="input pr-8"
-                value={ytm}
-                onChange={(e) => setYtm(e.target.value)}
-                placeholder="8.800"
-                required
-                autoFocus
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">%</span>
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>YTM для {bond.isin}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="rounded-lg bg-muted p-5 text-base space-y-2">
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Облигация</span>
+              <span className="font-medium text-right">{bond.name}</span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              После сохранения система пересчитает Ask/Bid и обновит витрину в реальном времени
-            </p>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Текущий YTM</span>
+              <span className="font-medium">{bond.ytm ? fmtPct(parseFloat(bond.ytm) * 100) : 'не задан'}</span>
+            </div>
           </div>
-          <div className="flex gap-3">
-            <button type="button" className="btn-secondary flex-1" onClick={onClose}>Отмена</button>
-            <button type="submit" className="btn-primary flex-1" disabled={loading}>
-              {loading ? 'Пересчёт...' : 'Сохранить YTM'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </Modal>
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="space-y-2">
+              <Label htmlFor="ytm">Новый YTM (%)</Label>
+              <div className="relative">
+                <Input
+                  id="ytm"
+                  type="number"
+                  step="0.001"
+                  min="0.001"
+                  max="99.999"
+                  className="pr-8"
+                  value={ytm}
+                  onChange={(e) => setYtm(e.target.value)}
+                  placeholder="8.800"
+                  required
+                  autoFocus
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                После сохранения система пересчитает Ask/Bid и обновит витрину в реальном времени
+              </p>
+            </div>
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Отмена
+              </Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Пересчёт...' : 'Сохранить YTM'}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

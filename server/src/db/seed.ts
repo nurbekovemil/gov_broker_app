@@ -50,8 +50,8 @@ async function seed() {
   for (let i = 0; i < bonds.length; i++) {
     const b = bonds[i];
     const res = await pool.query(`
-      INSERT INTO bonds (isin, name, nominal, coupon_rate, issue_date, maturity_date, coupon_frequency)
-      VALUES ($1,$2,$3,$4,$5,$6,$7)
+      INSERT INTO bonds (isin, name, nominal, coupon_rate, issue_date, maturity_date, coupon_frequency, available_quantity)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,500000)
       ON CONFLICT (isin) DO UPDATE SET name=EXCLUDED.name
       RETURNING id
     `, [b.isin, b.name, b.nominal, b.coupon_rate, b.issue_date, b.maturity_date, b.coupon_frequency]);

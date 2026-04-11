@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { Shield } from 'lucide-react';
 import { authApi } from '../api';
 import { useAuthStore } from '../store/auth';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function LoginPage() {
   const { user, login } = useAuthStore();
@@ -28,50 +33,56 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-900 to-brand-700 px-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-500 mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">OTC Market</h1>
-          <p className="text-sm text-gray-500 mt-1">Портал внебиржевой торговли ГЦБ</p>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="label">Email</label>
-            <input
-              type="email"
-              className="input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@govbroker.kg"
-              required
-              autoFocus
-            />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-primary/30 px-4">
+      <Card className="w-full max-w-lg shadow-xl">
+        <CardHeader className="text-center space-y-5">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <Shield className="h-9 w-9" />
           </div>
           <div>
-            <label className="label">Пароль</label>
-            <input
-              type="password"
-              className="input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-            />
+            <CardTitle className="text-3xl">OTC Market</CardTitle>
+            <CardDescription className="text-base mt-2">Портал внебиржевой торговли ГЦБ</CardDescription>
           </div>
-          <button type="submit" className="btn-primary w-full py-2.5 mt-2" disabled={loading}>
-            {loading ? 'Вход...' : 'Войти'}
-          </button>
-        </form>
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg text-xs text-gray-500 space-y-1">
-          <p><strong>Admin:</strong> admin@govbroker.kg / admin123</p>
-          <p><strong>Investor:</strong> investor1@example.com / investor123</p>
-        </div>
-      </div>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@govbroker.kg"
+                required
+                autoFocus
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Пароль</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Вход...' : 'Войти'}
+            </Button>
+          </form>
+          <div className="mt-6 rounded-lg bg-muted p-5 text-sm text-muted-foreground space-y-2">
+            <p>
+              <strong>Admin:</strong> admin@govbroker.kg / admin123
+            </p>
+            <p>
+              <strong>Investor:</strong> investor1@example.com / investor123
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

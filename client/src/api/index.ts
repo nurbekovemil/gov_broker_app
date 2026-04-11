@@ -9,9 +9,10 @@ export const authApi = {
 export const bondsApi = {
   list: () => api.get<Bond[]>('/bonds'),
   get: (id: string) => api.get<Bond>(`/bonds/${id}`),
-  create: (data: { isin: string; name: string; nominal: number; couponRate: number; issueDate: string; maturityDate: string; couponFrequency: number }) =>
+  create: (data: { isin: string; name: string; nominal: number; couponRate: number; issueDate: string; maturityDate: string; couponFrequency: number; availableQuantity?: number }) =>
     api.post<Bond>('/bonds', data),
-  update: (id: string, data: Partial<Bond>) => api.put<Bond>(`/bonds/${id}`, data),
+  update: (id: string, data: { name?: string; couponRate?: number; maturityDate?: string; couponFrequency?: number; availableQuantity?: number }) =>
+    api.put<Bond>(`/bonds/${id}`, data),
   updateYtm: (id: string, ytm: number) => api.put<Bond>(`/bonds/${id}/ytm`, { ytm }),
   deactivate: (id: string) => api.delete(`/bonds/${id}`),
 };

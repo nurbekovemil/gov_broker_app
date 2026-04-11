@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS bonds (
   issue_date        DATE NOT NULL,
   maturity_date     DATE NOT NULL,
   coupon_frequency  INT NOT NULL DEFAULT 2,
+  available_quantity INT NOT NULL DEFAULT 0 CHECK (available_quantity >= 0),
   status            bond_status NOT NULL DEFAULT 'active',
   created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
