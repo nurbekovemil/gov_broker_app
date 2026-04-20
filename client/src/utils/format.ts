@@ -8,6 +8,10 @@ export function fmtPct(n: number | string, decimals = 2): string {
   return `${fmt(n, decimals)}%`;
 }
 
+export function fmtInt(n: number | string): string {
+  return fmt(n, 0);
+}
+
 export function fmtDate(d: string): string {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('ru-RU');

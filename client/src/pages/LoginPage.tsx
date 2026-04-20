@@ -33,15 +33,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-primary/30 px-4">
-      <Card className="w-full max-w-lg shadow-xl">
-        <CardHeader className="text-center space-y-5">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 via-sky-50 to-blue-100 px-4 py-10">
+      <Card className="w-full max-w-lg border-0 shadow-material">
+        <CardHeader className="text-center space-y-4">
+          <div className="mx-auto flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-[1.75rem] bg-sky-200/55 text-primary shadow-inner">
             <Shield className="h-9 w-9" />
           </div>
           <div>
-            <CardTitle className="text-3xl">OTC Market</CardTitle>
-            <CardDescription className="text-base mt-2">Портал внебиржевой торговли ГЦБ</CardDescription>
+            <CardTitle className="text-3xl text-foreground">Gov Broker Market</CardTitle>
+            <CardDescription className="text-[0.9375rem] mt-2">Портал внебиржевой торговли ГЦБ</CardDescription>
           </div>
         </CardHeader>
         <CardContent>
@@ -69,11 +69,11 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full shadow-material-sm" disabled={loading}>
               {loading ? 'Вход...' : 'Войти'}
             </Button>
           </form>
-          <div className="mt-6 rounded-lg bg-muted p-5 text-sm text-muted-foreground space-y-2">
+          <div className="mt-6 rounded-2xl border border-border/50 bg-muted/60 p-5 text-sm text-muted-foreground space-y-2 backdrop-blur-sm">
             <p>
               <strong>Admin:</strong> admin@govbroker.kg / admin123
             </p>

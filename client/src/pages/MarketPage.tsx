@@ -1,14 +1,14 @@
 import { useEffect, useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import { FileText } from 'lucide-react';
 import { bondsApi } from '../api';
 import type { Bond } from '../types';
-import { fmt, fmtPct, fmtDate } from '../utils/format';
+import { fmt, fmtInt, fmtPct, fmtDate } from '../utils/format';
 import { usePricesUpdated } from '../hooks/useSocket';
 import DealModal from '../components/DealModal';
 import Spinner from '../components/Spinner';
 import { useAuthStore } from '../store/auth';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
@@ -62,14 +62,14 @@ export default function MarketPage() {
 
   return (
     <div>
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">Витрина ГЦБ</h1>
-        <p className="text-base text-muted-foreground mt-2">Котировки обновляются в реальном времени</p>
+        <p className="text-[0.9375rem] text-muted-foreground mt-2">Котировки обновляются в реальном времени</p>
       </div>
 
       {bonds.length === 0 ? (
         <Card>
-          <CardContent className="py-16 text-center text-muted-foreground">Нет доступных ценных бумаг</CardContent>
+          <CardContent className="py-14 text-center text-muted-foreground text-[0.9375rem]">Нет доступных ценных бумаг</CardContent>
         </Card>
       ) : (
         <Card>
@@ -79,11 +79,12 @@ export default function MarketPage() {
                 <TableRow>
                   <TableHead>ISIN / Название</TableHead>
                   <TableHead>Купон</TableHead>
+                  <TableHead>Частота купона</TableHead>
                   <TableHead>YTM</TableHead>
                   <TableHead>Дата погашения</TableHead>
-                  <TableHead className="text-right">Bid</TableHead>
-                  <TableHead className="text-right">Ask</TableHead>
-                  <TableHead className="text-right">НКД</TableHead>
+                  <TableHead className="text-right">Купля</TableHead>
+                  <TableHead className="text-right">Продажа</TableHead>
+                  <TableHead className="text-right">НКД (сом)</TableHead>
                   <TableHead className="text-right">Доступно</TableHead>
                   {user?.role === 'investor' && <TableHead className="w-[220px]" />}
                 </TableRow>
@@ -94,19 +95,15 @@ export default function MarketPage() {
                   return (
                     <TableRow key={bond.id}>
                       <TableCell>
-                        <div className="font-medium">{bond.isin}</div>
+                        <div className="font-medium flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                          {bond.isin}
+                        </div>
                         <div className="text-sm text-muted-foreground">{bond.name}</div>
                       </TableCell>
                       <TableCell>{fmtPct(parseFloat(bond.coupon_rate) * 100)}</TableCell>
-                      <TableCell>
-                        {bond.ytm ? (
-                          <Badge variant="secondary" className="font-normal">
-                            {fmtPct(parseFloat(bond.ytm) * 100)}
-                          </Badge>
-                        ) : (
-                          '—'
-                        )}
-                      </TableCell>
+                      <TableCell>{bond.coupon_frequency ? `${fmtInt(bond.coupon_frequency)} раз/год` : '—'}</TableCell>
+                      <TableCell>{bond.ytm ? fmtPct(parseFloat(bond.ytm) * 100) : '—'}</TableCell>
                       <TableCell>{fmtDate(bond.maturity_date)}</TableCell>
                       <TableCell className="text-right font-semibold text-emerald-700">
                         {bond.bid_price ? fmt(bond.bid_price) : '—'}
@@ -115,9 +112,7 @@ export default function MarketPage() {
                         {bond.ask_price ? fmt(bond.ask_price) : '—'}
                       </TableCell>
                       <TableCell className="text-right text-muted-foreground">{fmt(nkd)}</TableCell>
-                      <TableCell className="text-right font-medium">
-                        {(bond.available_quantity ?? 0).toLocaleString('ru-RU')}
-                      </TableCell>
+                      <TableCell className="text-right font-medium">{fmtInt(bond.available_quantity ?? 0)}</TableCell>
                       {user?.role === 'investor' && (
                         <TableCell>
                           <div className="flex gap-2 justify-end">

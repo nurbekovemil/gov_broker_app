@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { tradesApi } from '../api';
 import type { Trade } from '../types';
-import { fmt, fmtDateTime } from '../utils/format';
+import { fmt, fmtDateTime, fmtInt } from '../utils/format';
 import Spinner from '../components/Spinner';
 import { useAuthStore } from '../store/auth';
 import { Badge } from '@/components/ui/badge';
@@ -34,14 +35,14 @@ export default function TradesPage() {
 
   return (
     <div>
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">{isAdmin ? 'Все сделки' : 'Мои сделки'}</h1>
-        <p className="text-base text-muted-foreground mt-2">Журнал операций — {trades.length} записей</p>
+        <p className="text-[0.9375rem] text-muted-foreground mt-2">Журнал операций — {fmtInt(trades.length)} записей</p>
       </div>
 
       {trades.length === 0 ? (
         <Card>
-          <CardContent className="py-16 text-center text-muted-foreground">Нет сделок</CardContent>
+          <CardContent className="py-14 text-center text-muted-foreground text-[0.9375rem]">Нет сделок</CardContent>
         </Card>
       ) : (
         <Card>
@@ -77,11 +78,19 @@ export default function TradesPage() {
                       <div className="text-sm text-muted-foreground">{t.bond_name}</div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={t.trade_type === 'buy' ? 'default' : 'destructive'} className="font-normal">
+                      <Badge
+                        variant="outline"
+                        className={
+                          t.trade_type === 'buy'
+                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700 font-medium'
+                            : 'border-red-200 bg-red-50 text-red-600 font-medium'
+                        }
+                      >
+                        {t.trade_type === 'buy' ? <ArrowDownLeft /> : <ArrowUpRight />}
                         {t.trade_type === 'buy' ? 'Покупка' : 'Продажа'}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">{t.quantity}</TableCell>
+                    <TableCell className="text-right">{fmtInt(t.quantity)}</TableCell>
                     <TableCell className="text-right">{fmt(t.price_per_bond)}</TableCell>
                     <TableCell className="text-right text-muted-foreground">{fmt(t.nkd_per_bond)}</TableCell>
                     <TableCell className="text-right font-semibold">{fmt(t.total_amount)}</TableCell>

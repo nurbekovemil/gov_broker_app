@@ -46,6 +46,11 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      boxShadow: {
+        material:
+          '0 4px 24px -4px hsl(210 45% 45% / 0.11), 0 2px 10px -2px hsl(210 40% 40% / 0.06)',
+        'material-sm': '0 2px 14px -2px hsl(210 45% 45% / 0.1)',
+      },
     },
   },
   plugins: [tailwindcssAnimate],

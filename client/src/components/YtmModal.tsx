@@ -44,7 +44,7 @@ export default function YtmModal({ bond, onClose, onSuccess }: Props) {
           <DialogTitle>YTM для {bond.isin}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="rounded-lg bg-muted p-5 text-base space-y-2">
+          <div className="rounded-2xl border border-border/40 bg-muted/80 p-4 text-[0.9375rem] space-y-2">
             <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">Облигация</span>
               <span className="font-medium text-right">{bond.name}</span>
@@ -74,7 +74,7 @@ export default function YtmModal({ bond, onClose, onSuccess }: Props) {
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                После сохранения система пересчитает Ask/Bid и обновит витрину в реальном времени
+                После сохранения система пересчитает цены купли/продажи и обновит витрину в реальном времени
               </p>
             </div>
             <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">

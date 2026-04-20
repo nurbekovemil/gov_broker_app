@@ -1,0 +1,30 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+require("dotenv/config");
+const http_1 = __importDefault(require("http"));
+const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
+const socket_1 = require("./socket");
+const auth_1 = __importDefault(require("./routes/auth"));
+const bonds_1 = __importDefault(require("./routes/bonds"));
+const trades_1 = __importDefault(require("./routes/trades"));
+const portfolio_1 = __importDefault(require("./routes/portfolio"));
+const reports_1 = __importDefault(require("./routes/reports"));
+const app = (0, express_1.default)();
+app.use((0, cors_1.default)());
+app.use(express_1.default.json());
+app.use('/api/auth', auth_1.default);
+app.use('/api/bonds', bonds_1.default);
+app.use('/api/trades', trades_1.default);
+app.use('/api/portfolio', portfolio_1.default);
+app.use('/api/reports', reports_1.default);
+app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+const httpServer = http_1.default.createServer(app);
+(0, socket_1.initSocket)(httpServer);
+const PORT = process.env.PORT ?? 4000;
+httpServer.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});

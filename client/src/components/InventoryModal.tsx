@@ -49,7 +49,7 @@ export default function InventoryModal({ bond, onClose, onSuccess }: Props) {
           <DialogTitle>Остаток брокера: {bond.isin}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <p className="text-base text-muted-foreground">{bond.name}</p>
+          <p className="text-[0.9375rem] text-muted-foreground">{bond.name}</p>
           <div className="space-y-2">
             <Label htmlFor="inv-qty">Доступно к продаже (шт.)</Label>
             <Input

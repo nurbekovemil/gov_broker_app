@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { portfolioApi } from '../api';
 import type { PortfolioItem } from '../types';
-import { fmt, fmtPct, fmtDate } from '../utils/format';
+import { fmt, fmtInt, fmtPct, fmtDate } from '../utils/format';
 import Spinner from '../components/Spinner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -33,33 +33,33 @@ export default function PortfolioPage() {
 
   return (
     <div>
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">Мой портфель</h1>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-normal text-muted-foreground">Текущая стоимость</CardTitle>
+            <CardTitle className="text-[0.9375rem] font-normal text-muted-foreground">Текущая стоимость</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{fmt(totalValue)} сом</p>
+            <p className="text-2xl font-bold lg:text-3xl">{fmt(totalValue)} сом</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-normal text-muted-foreground">Себестоимость</CardTitle>
+            <CardTitle className="text-[0.9375rem] font-normal text-muted-foreground">Себестоимость</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{fmt(totalCost)} сом</p>
+            <p className="text-2xl font-bold lg:text-3xl">{fmt(totalCost)} сом</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-normal text-muted-foreground">П/У</CardTitle>
+            <CardTitle className="text-[0.9375rem] font-normal text-muted-foreground">П/У</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-3xl font-bold ${pnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            <p className={`text-2xl font-bold lg:text-3xl ${pnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               {pnl >= 0 ? '+' : ''}
               {fmt(pnl)} сом
             </p>
@@ -69,7 +69,7 @@ export default function PortfolioPage() {
 
       {items.length === 0 ? (
         <Card>
-          <CardContent className="py-16 text-center text-muted-foreground">В портфеле нет ценных бумаг</CardContent>
+          <CardContent className="py-14 text-center text-muted-foreground text-[0.9375rem]">В портфеле нет ценных бумаг</CardContent>
         </Card>
       ) : (
         <Card>
@@ -102,7 +102,7 @@ export default function PortfolioPage() {
                       </TableCell>
                       <TableCell>{fmtPct(parseFloat(item.coupon_rate) * 100)}</TableCell>
                       <TableCell>{fmtDate(item.maturity_date)}</TableCell>
-                      <TableCell className="text-right font-medium">{item.quantity}</TableCell>
+                      <TableCell className="text-right font-medium">{fmtInt(item.quantity)}</TableCell>
                       <TableCell className="text-right">{fmt(avgPrice)}</TableCell>
                       <TableCell className="text-right">{fmt(curPrice)}</TableCell>
                       <TableCell className="text-right font-semibold">{fmt(value)}</TableCell>

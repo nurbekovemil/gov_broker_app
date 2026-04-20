@@ -7,7 +7,8 @@ export const authApi = {
 };
 
 export const bondsApi = {
-  list: () => api.get<Bond[]>('/bonds'),
+  list: (params?: { includeInactive?: boolean }) =>
+    api.get<Bond[]>('/bonds', { params: params?.includeInactive ? { includeInactive: 'true' } : undefined }),
   get: (id: string) => api.get<Bond>(`/bonds/${id}`),
   create: (data: { isin: string; name: string; nominal: number; couponRate: number; issueDate: string; maturityDate: string; couponFrequency: number; availableQuantity?: number }) =>
     api.post<Bond>('/bonds', data),

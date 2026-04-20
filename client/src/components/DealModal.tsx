@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { tradesApi } from '../api';
 import type { Bond } from '../types';
-import { fmt, fmtPct } from '../utils/format';
+import { fmt, fmtInt, fmtPct } from '../utils/format';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,16 +25,28 @@ export default function DealModal({ bond, mode, onClose, onSuccess }: Props) {
   const availableBroker = bond.available_quantity ?? 0;
   const maxBuy = mode === 'buy' ? Math.max(0, availableBroker) : Number.MAX_SAFE_INTEGER;
 
-  const [quantity, setQuantity] = useState(1);
+  const [quantityInput, setQuantityInput] = useState('1');
   const [loading, setLoading] = useState(false);
 
+  const parseQuantity = (value: string): number => {
+    const digits = value.replace(/\D/g, '');
+    if (!digits) return 0;
+    const parsed = parseInt(digits, 10);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+
   useEffect(() => {
+    const parsed = parseQuantity(quantityInput);
+    if (!parsed) return;
+
     if (mode === 'buy') {
-      setQuantity((q) => Math.min(Math.max(1, q), Math.max(1, maxBuy || 1)));
+      const clamped = Math.min(Math.max(1, parsed), Math.max(1, maxBuy || 1));
+      if (clamped !== parsed) setQuantityInput(fmtInt(clamped));
     } else {
-      setQuantity((q) => Math.max(1, q));
+      const clamped = Math.max(1, parsed);
+      if (clamped !== parsed) setQuantityInput(fmtInt(clamped));
     }
-  }, [bond.id, mode, maxBuy]);
+  }, [bond.id, mode, maxBuy, quantityInput]);
 
   const pricePerBond = mode === 'buy'
     ? parseFloat(bond.ask_price ?? '0')
@@ -42,16 +54,22 @@ export default function DealModal({ bond, mode, onClose, onSuccess }: Props) {
   const dirtyPrice = parseFloat(bond.dirty_price ?? '0');
   const cleanPrice = parseFloat(bond.clean_price ?? '0');
   const nkd = dirtyPrice - cleanPrice;
-  const totalAmount = pricePerBond * quantity;
-  const nkdTotal = nkd * quantity;
+  const actualQuantity = parseQuantity(quantityInput);
+  const totalAmount = pricePerBond * actualQuantity;
+  const nkdTotal = nkd * actualQuantity;
   const nominal = parseFloat(bond.nominal);
   const ytm = parseFloat(bond.ytm ?? '0');
 
   const handleConfirm = async () => {
     setLoading(true);
     try {
-      await tradesApi.create(bond.id, mode, quantity);
-      toast.success(`Сделка исполнена: ${mode === 'buy' ? 'куплено' : 'продано'} ${quantity} шт.`);
+      if (!actualQuantity || actualQuantity < 1) {
+        toast.error('Введите количество больше нуля');
+        return;
+      }
+
+      await tradesApi.create(bond.id, mode, actualQuantity);
+      toast.success(`Сделка исполнена: ${mode === 'buy' ? 'куплено' : 'продано'} ${actualQuantity} шт.`);
       onSuccess();
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
@@ -70,40 +88,46 @@ export default function DealModal({ bond, mode, onClose, onSuccess }: Props) {
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="rounded-lg bg-muted p-5 space-y-2.5 text-base">
+          <div className="rounded-2xl bg-muted/80 p-4 space-y-2.5 text-[0.9375rem] border border-border/40">
             <Row label="ISIN" value={bond.isin} />
             <Row label="Купон" value={fmtPct(parseFloat(bond.coupon_rate) * 100)} />
             <Row label="Доходность (YTM)" value={fmtPct(ytm * 100)} />
             <Row label="Чистая цена" value={fmt(cleanPrice)} />
             <Row label="НКД" value={fmt(nkd)} />
             <Row
-              label={mode === 'buy' ? 'Цена Ask (с НКД)' : 'Цена Bid (с НКД)'}
+              label={mode === 'buy' ? 'Цена продажи (с НКД)' : 'Цена купли (с НКД)'}
               value={fmt(pricePerBond)}
               highlight
             />
-            {mode === 'buy' && <Row label="Доступно у брокера (шт.)" value={String(availableBroker)} />}
+            {mode === 'buy' && <Row label="Доступно у брокера (шт.)" value={fmtInt(availableBroker)} />}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="qty">Количество (шт.)</Label>
             <Input
               id="qty"
-              type="number"
-              min={1}
-              max={mode === 'buy' ? maxBuy : undefined}
-              value={quantity}
+              type="text"
+              inputMode="numeric"
+              value={quantityInput}
               onChange={(e) => {
-                const v = parseInt(e.target.value, 10) || 1;
-                if (mode === 'buy') setQuantity(Math.min(Math.max(1, v), Math.max(1, maxBuy)));
-                else setQuantity(Math.max(1, v));
+                const digits = e.target.value.replace(/\D/g, '');
+                if (!digits) {
+                  setQuantityInput('');
+                  return;
+                }
+                let value = parseInt(digits, 10);
+                if (Number.isNaN(value)) return;
+                if (mode === 'buy') value = Math.min(Math.max(1, value), Math.max(1, maxBuy));
+                else value = Math.max(1, value);
+                setQuantityInput(fmtInt(value));
               }}
             />
             <p className="text-sm text-muted-foreground">Номинал одной бумаги: {fmt(nominal)} сом</p>
           </div>
 
-          <div className="rounded-lg border border-primary/20 bg-primary/5 p-5 space-y-2.5 text-base">
+          <div className="rounded-2xl border-2 border-primary/25 bg-primary/[0.07] p-4 space-y-2.5 text-[0.9375rem]">
             <Row label="Цена за 1 шт." value={fmt(pricePerBond)} />
-            <Row label={`НКД × ${quantity}`} value={fmt(nkdTotal)} />
+            <Row label={`НКД × ${fmtInt(actualQuantity)}`} value={fmt(nkdTotal)} />
             <div className="border-t border-primary/20 pt-2">
               <Row label="Итого к оплате" value={`${fmt(totalAmount)} сом`} highlight />
             </div>
@@ -116,7 +140,11 @@ export default function DealModal({ bond, mode, onClose, onSuccess }: Props) {
           <Button
             variant={mode === 'buy' ? 'default' : 'destructive'}
             onClick={handleConfirm}
-            disabled={loading || (mode === 'buy' && (availableBroker <= 0 || quantity > availableBroker))}
+            disabled={
+              loading
+              || !actualQuantity
+              || (mode === 'buy' && (availableBroker <= 0 || actualQuantity > availableBroker))
+            }
           >
             {loading ? 'Обработка...' : mode === 'buy' ? 'Подтвердить покупку' : 'Подтвердить продажу'}
           </Button>

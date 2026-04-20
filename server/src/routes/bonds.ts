@@ -7,15 +7,25 @@ import { getIO } from '../socket';
 
 const router = Router();
 
-router.get('/', authenticate, async (_req, res) => {
+router.get('/', authenticate, async (req, res) => {
+  const includeInactive = req.query.includeInactive === 'true';
+  if (includeInactive && req.user?.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  const statusWhere = includeInactive ? '' : `WHERE b.status = 'active'`;
+  const orderBy = includeInactive
+    ? `ORDER BY CASE b.status WHEN 'active' THEN 0 WHEN 'inactive' THEN 1 WHEN 'matured' THEN 2 ELSE 3 END, b.created_at`
+    : 'ORDER BY b.created_at';
+
   const result = await pool.query(`
     SELECT b.*, bp.ytm, bp.clean_price, bp.dirty_price, bp.ask_price, bp.bid_price, bp.date AS price_date
     FROM bonds b
     LEFT JOIN LATERAL (
       SELECT * FROM bond_prices WHERE bond_id = b.id ORDER BY date DESC LIMIT 1
     ) bp ON true
-    WHERE b.status = 'active'
-    ORDER BY b.created_at
+    ${statusWhere}
+    ${orderBy}
   `);
   return res.json(result.rows);
 });

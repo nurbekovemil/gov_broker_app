@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { reportsApi } from '../api';
 import type { BalanceReport } from '../types';
-import { fmt } from '../utils/format';
+import { fmt, fmtInt } from '../utils/format';
 import Spinner from '../components/Spinner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -31,16 +31,16 @@ export default function BalancesPage() {
 
   return (
     <div>
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">Реестр остатков клиентов</h1>
-        <p className="text-base text-muted-foreground mt-2">
+        <p className="text-[0.9375rem] text-muted-foreground mt-2">
           Суммарная стоимость портфелей: <strong>{fmt(totalValue)} сом</strong>
         </p>
       </div>
 
       {data.length === 0 ? (
         <Card>
-          <CardContent className="py-16 text-center text-muted-foreground">Нет данных</CardContent>
+          <CardContent className="py-14 text-center text-muted-foreground text-[0.9375rem]">Нет данных</CardContent>
         </Card>
       ) : (
         <Card>
@@ -66,7 +66,7 @@ export default function BalancesPage() {
                       <div className="font-medium">{row.isin}</div>
                       <div className="text-sm text-muted-foreground">{row.bond_name}</div>
                     </TableCell>
-                    <TableCell className="text-right">{row.quantity}</TableCell>
+                    <TableCell className="text-right">{fmtInt(row.quantity)}</TableCell>
                     <TableCell className="text-right">{fmt(row.avg_price)}</TableCell>
                     <TableCell className="text-right font-semibold">{fmt(row.current_value)}</TableCell>
                   </TableRow>
