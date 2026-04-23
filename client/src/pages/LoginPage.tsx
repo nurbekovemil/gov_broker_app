@@ -34,7 +34,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 via-sky-50 to-blue-100 px-4 py-10">
-      <Card className="w-full max-w-lg border-0 shadow-material">
+      <Card className="w-full max-w-md border-0 shadow-material">
         <CardHeader className="text-center space-y-4">
           <div className="mx-auto flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-[1.75rem] bg-sky-200/55 text-primary shadow-inner">
             <Shield className="h-9 w-9" />
@@ -53,7 +53,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@govbroker.kg"
+                placeholder="Введите email"
                 required
                 autoFocus
               />
@@ -65,7 +65,7 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Введите пароль"
                 required
               />
             </div>
@@ -73,7 +73,8 @@ export default function LoginPage() {
               {loading ? 'Вход...' : 'Войти'}
             </Button>
           </form>
-          <div className="mt-6 rounded-2xl border border-border/50 bg-muted/60 p-5 text-sm text-muted-foreground space-y-2 backdrop-blur-sm">
+          <div className="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-5 text-sm text-slate-600 space-y-2">
+            <p className="font-semibold text-foreground">Тестовые данные для доступа:</p>
             <p>
               <strong>Admin:</strong> admin@govbroker.kg / admin123
             </p>

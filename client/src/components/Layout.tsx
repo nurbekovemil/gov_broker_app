@@ -14,7 +14,7 @@ const navAdmin = [
   { to: '/market', label: 'Витрина', icon: LayoutDashboard },
   { to: '/trades', label: 'Все сделки', icon: ListChecks },
   { to: '/admin', label: 'Управление', icon: Settings2 },
-  { to: '/admin/balances', label: 'Остатки', icon: Wallet },
+  { to: '/admin/balances', label: 'Балансы', icon: Wallet },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {

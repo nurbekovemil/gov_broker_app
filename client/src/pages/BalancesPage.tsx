@@ -32,7 +32,7 @@ export default function BalancesPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">Реестр остатков клиентов</h1>
+        <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">Реестр клиентов</h1>
         <p className="text-[0.9375rem] text-muted-foreground mt-2">
           Суммарная стоимость портфелей: <strong>{fmt(totalValue)} сом</strong>
         </p>

@@ -93,7 +93,7 @@ gov_broker_app/
 | GET    | /api/trades            | JWT   | Журнал (admin = все, investor = свои)|
 | GET    | /api/portfolio         | JWT   | Портфель инвестора                  |
 | GET    | /api/reports/margin    | Admin | Ведомость маржинального дохода      |
-| GET    | /api/reports/balances  | Admin | Реестр остатков клиентов            |
+| GET    | /api/reports/balances  | Admin | Реестр клиентов                     |
 | GET    | /api/reports/summary   | Admin | Сводная статистика для дашборда     |
 
 ## Формулы ценообразования
