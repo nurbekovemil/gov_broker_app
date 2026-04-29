@@ -73,15 +73,6 @@ export default function LoginPage() {
               {loading ? 'Вход...' : 'Войти'}
             </Button>
           </form>
-          <div className="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-5 text-sm text-slate-600 space-y-2">
-            <p className="font-semibold text-foreground">Тестовые данные для доступа:</p>
-            <p>
-              <strong>Admin:</strong> admin@govbroker.kg / admin123
-            </p>
-            <p>
-              <strong>Investor:</strong> investor1@example.com / investor123
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>
